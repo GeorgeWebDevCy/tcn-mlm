@@ -56,6 +56,7 @@ Custom WordPress plugin that layers an MLM programme on top of WooCommerce membe
 - Feel free to adjust pricing, content, or visibility of the generated products—or replace them with your own items using the same membership field.
 - Products are automatically assigned to the `Memberships` WooCommerce category (created on activation if missing) so catalog filtering stays consistent.
 - Seeded products are also removed from the default `Uncategorized` bucket so only relevant categories remain visible.
+- Pricing and category assignments are re-synced on every load to keep existing products aligned with these defaults.
 
 ## Mobile App Integration
 - The [TCNApp](https://github.com/GeorgeWebDevCy/TCNApp) React Native client consumes the GN Password Login API endpoints for authentication and the `gn/v1/memberships/*` endpoints defined in this plugin for membership upgrades.

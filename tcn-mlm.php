@@ -3,7 +3,7 @@
  * Plugin Name:       TCN MLM
  * Plugin URI:        https://github.com/GeorgeWebDevCy/tcn-mlm
  * Description:       Network marketing automation for WooCommerce memberships.
- * Version:           0.1.8
+ * Version:           0.1.9
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            TCN
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'TCN_MLM_VERSION' ) ) {
-	define( 'TCN_MLM_VERSION', '0.1.8' );
+	define( 'TCN_MLM_VERSION', '0.1.9' );
 }
 
 if ( ! defined( 'TCN_MLM_PLUGIN_FILE' ) ) {
@@ -48,6 +48,7 @@ register_activation_hook( __FILE__, 'tcn_mlm_activate' );
 register_deactivation_hook( __FILE__, 'tcn_mlm_deactivate' );
 
 add_action( 'plugins_loaded', 'tcn_mlm_bootstrap', 5 );
+add_action( 'init', 'tcn_mlm_sync_membership_products', 25 );
 
 function tcn_mlm_default_levels(): array {
 	return [
@@ -261,18 +262,31 @@ function tcn_mlm_seed_membership_products(): void {
 		return;
 	}
 
-	tcn_mlm_ensure_membership_category();
+	$category_id = tcn_mlm_ensure_membership_category();
 
 	$levels = tcn_mlm_get_levels();
 
 	foreach ( $levels as $slug => $config ) {
-		tcn_mlm_ensure_membership_product( sanitize_key( $slug ), $config );
+		tcn_mlm_ensure_membership_product( sanitize_key( $slug ), $config, $category_id );
 	}
 }
 
-function tcn_mlm_ensure_membership_category(): void {
-	if ( ! function_exists( 'wp_insert_term' ) || ! function_exists( 'get_term_by' ) ) {
+function tcn_mlm_sync_membership_products(): void {
+	if ( ! class_exists( '\\WC_Product' ) || ! function_exists( 'wc_get_product' ) ) {
 		return;
+	}
+
+	$category_id = tcn_mlm_ensure_membership_category();
+	$levels      = tcn_mlm_get_levels();
+
+	foreach ( $levels as $slug => $config ) {
+		tcn_mlm_ensure_membership_product( sanitize_key( $slug ), $config, $category_id );
+	}
+}
+
+function tcn_mlm_ensure_membership_category(): int {
+	if ( ! function_exists( 'wp_insert_term' ) || ! function_exists( 'get_term_by' ) ) {
+		return 0;
 	}
 
 	$stored_id = (int) get_option( 'tcn_mlm_membership_category_id', 0 );
@@ -280,7 +294,7 @@ function tcn_mlm_ensure_membership_category(): void {
 	if ( $stored_id > 0 ) {
 		$stored_term = get_term( $stored_id, 'product_cat' );
 		if ( $stored_term && ! is_wp_error( $stored_term ) ) {
-			return;
+			return $stored_id;
 		}
 	}
 
@@ -298,15 +312,17 @@ function tcn_mlm_ensure_membership_category(): void {
 	}
 
 	if ( is_wp_error( $term ) ) {
-		return;
+		return 0;
 	}
 
 	$term_id = (int) ( is_array( $term ) ? $term['term_id'] : $term->term_id );
 
 	update_option( 'tcn_mlm_membership_category_id', $term_id, false );
+
+	return $term_id;
 }
 
-function tcn_mlm_ensure_membership_product( string $level, array $config ): void {
+function tcn_mlm_ensure_membership_product( string $level, array $config, int $category_id = 0 ): void {
 	$product = tcn_mlm_find_product_by_level( $level );
 
 	if ( ! $product ) {
@@ -333,8 +349,6 @@ function tcn_mlm_ensure_membership_product( string $level, array $config ): void
 	$product->set_regular_price( $price );
 
 	$product->update_meta_data( '_tcn_membership_level', $level );
-
-	$category_id = (int) get_option( 'tcn_mlm_membership_category_id', 0 );
 
 	if ( $category_id > 0 ) {
 		wp_set_object_terms( $product->get_id(), [ $category_id ], 'product_cat', true );
