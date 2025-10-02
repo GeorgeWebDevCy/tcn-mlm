@@ -3,7 +3,7 @@
  * Plugin Name:       TCN MLM
  * Plugin URI:        https://github.com/GeorgeWebDevCy/tcn-mlm
  * Description:       Network marketing automation for WooCommerce memberships.
- * Version:           0.1.9
+ * Version:           0.2.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            TCN
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'TCN_MLM_VERSION' ) ) {
-	define( 'TCN_MLM_VERSION', '0.1.9' );
+	define( 'TCN_MLM_VERSION', '0.2.0' );
 }
 
 if ( ! defined( 'TCN_MLM_PLUGIN_FILE' ) ) {
@@ -162,6 +162,8 @@ function tcn_mlm_get_levels(): array {
 		}
 
 		$levels[ $key ] = array_merge( $default, $levels[ $key ] );
+		$levels[ $key ]['fee']      = $default['fee'];
+		$levels[ $key ]['currency'] = $default['currency'];
 	}
 
 	return $levels;
@@ -199,6 +201,7 @@ function tcn_mlm_activate(): void {
  */
 function tcn_mlm_deactivate(): void {
 	wp_clear_scheduled_hook( 'tcn_mlm_sync_memberships' );
+	wp_clear_scheduled_hook( 'tcn_mlm_sync_membership_products_event' );
 	flush_rewrite_rules();
 }
 
@@ -276,6 +279,20 @@ function tcn_mlm_sync_membership_products(): void {
 		return;
 	}
 
+	if ( ! wp_next_scheduled( 'tcn_mlm_sync_membership_products_event' ) ) {
+		wp_schedule_event( time(), 'hourly', 'tcn_mlm_sync_membership_products_event' );
+	}
+
+	tcn_mlm_run_membership_sync();
+}
+
+add_action( 'tcn_mlm_sync_membership_products_event', 'tcn_mlm_run_membership_sync' );
+
+function tcn_mlm_run_membership_sync(): void {
+	if ( ! class_exists( '\\WC_Product' ) || ! function_exists( 'wc_get_product' ) ) {
+		return;
+	}
+
 	$category_id = tcn_mlm_ensure_membership_category();
 	$levels      = tcn_mlm_get_levels();
 
@@ -323,14 +340,21 @@ function tcn_mlm_ensure_membership_category(): int {
 }
 
 function tcn_mlm_ensure_membership_product( string $level, array $config, int $category_id = 0 ): void {
+	$default_prices = [
+		'blue'     => 0.0,
+		'gold'     => 500.0,
+		'platinum' => 1200.0,
+		'black'    => 2000.0,
+	];
+
+	$price = $default_prices[ $level ] ?? ( isset( $config['fee'] ) ? (float) $config['fee'] : 0.0 );
+	$config['fee'] = $price;
 	$product = tcn_mlm_find_product_by_level( $level );
 
 	if ( ! $product ) {
 		$label = isset( $config['label'] ) ? (string) $config['label'] : ucfirst( $level );
 		$product = tcn_mlm_find_product_by_title( $label );
 	}
-
-	$price = isset( $config['fee'] ) ? (float) $config['fee'] : 0.0;
 
 	if ( ! $product ) {
 		$product = class_exists( '\WC_Product_Simple' )

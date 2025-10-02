@@ -4,7 +4,7 @@ Tags: woocommerce, mlm, memberships, commissions, genealogy
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.1.9
+Stable tag: 0.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -50,6 +50,10 @@ Edit the product in the WordPress admin and locate the **TCN MLM Membership Leve
 Future commits will introduce the service container, WooCommerce membership sync, commission calculations, REST API endpoints, and dashboards described in `architecture.md`.
 
 == Changelog ==
+= 0.2.0 =
+* Force membership pricing to 0 / 500 / 1,200 / 2,000 THB regardless of historical settings and re-run synchronisation every page load plus hourly via WP-Cron.
+* Keep auto-generated products in the `Memberships` category only, stripping `Uncategorized` when necessary.
+
 = 0.1.9 =
 * Enforce correct membership pricing and category assignment on every load so existing products stay in sync.
 * Remove seeded products from `Uncategorized` after adding them to the `Memberships` category.
@@ -91,6 +95,9 @@ Future commits will introduce the service container, WooCommerce membership sync
 * Provide this WordPress readme to surface plugin metadata and setup notes inside the admin.
 
 == Upgrade Notice ==
+= 0.2.0 =
+Stronger pricing + category enforcement and scheduled resyncs for seeded membership products.
+
 = 0.1.9 =
 Ongoing pricing/category sync for auto-generated membership products. Update if you rely on the seeded catalogue.
 
