@@ -12,6 +12,7 @@ It is often deployed alongside the [GN Password Login API](https://github.com/Ge
 - **Network Service** - Maintains sponsor relationships, assigns network owners, and exposes traversal helpers for genealogies and commission roll-ups.
 - **Commission Manager** - Calculates commissions during WooCommerce order completion, records them in a custom table, and provides summary totals for dashboards.
 - **Admin UI** - Provides settings for membership tiers, WooCommerce product mapping, and manual adjustments. Adds a product data field for associating each SKU with a membership level and annual fee, and seeds default membership products during activation.
+- **Branding & UX** - Front-end dashboard styling and admin previews mirror the mobile app’s blue gradient branding to provide a consistent experience across platforms.
 - **Member Dashboard Shortcodes** - Front-end shortcodes for members to view earnings, commissions, and downline activity. Genealogy output uses localized REST endpoints to render an interactive tree.
 - **WooCommerce Account Endpoints** - Adds `tcn-member-dashboard` and `tcn-genealogy` endpoints under My Account that render the same templates as the shortcodes, keeping page and account navigation aligned.
 - **REST API** - Namespaced endpoints under `/wp-json/tcn-mlm/v1/` exposing genealogy data, member metrics, and commission summaries for authenticated users, plus `/wp-json/gn/v1/memberships/*` routes that power the TCN mobile app membership catalogue and upgrade flows (the Stripe intent route returns a 501 response until a gateway integration hooks into `tcn_mlm_membership_create_payment_session`).
@@ -45,6 +46,7 @@ It is often deployed alongside the [GN Password Login API](https://github.com/Ge
 5. Commission Manager records a direct commission for the sponsor. It then walks up the upline hierarchy to award passive commissions per rules (currently 1 level for Gold/Platinum to align with provided scenarios).
 6. Dashboards and REST endpoints (including the mobile-facing `/wp-json/wp/v2/users/me` augmentation) read aggregated data from the commission table and user meta for reporting.
 7. Account endpoints reuse shortcode renderers so members see consistent dashboards when browsing the WooCommerce My Account area.
+8. Seeded products are automatically assigned to the `Memberships` product category so storefront organization matches mobile expectations.
 
 ## Genealogy Visualization
 - REST endpoint returns a nested tree structure limited to the authenticated user's downline.

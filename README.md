@@ -15,6 +15,7 @@ Custom WordPress plugin that layers an MLM programme on top of WooCommerce membe
 - Automatic seeding of baseline membership products when the plugin activates (Blue, Gold, Platinum, Black).
 - WooCommerce “My Account” menu entries for MLM Dashboard and Genealogy that reuse the bundled shortcodes.
 - REST endpoints that power the TCNApp mobile membership catalogue and upgrade flows.
+- Polished member dashboard and admin UI with TCN-branded styling.
 
 ## Requirements
 - WordPress 6.0+
@@ -53,6 +54,7 @@ Custom WordPress plugin that layers an MLM programme on top of WooCommerce membe
 - On activation the plugin creates hidden WooCommerce products for the baseline levels (Blue, Gold, Platinum, Black) if they’re missing.
 - Each seeded product is automatically tagged with the correct `TCN MLM Membership Level`, so orders placed against them immediately upgrade members.
 - Feel free to adjust pricing, content, or visibility of the generated products—or replace them with your own items using the same membership field.
+- Products are automatically assigned to the `Memberships` WooCommerce category (created on activation if missing) so catalog filtering stays consistent.
 
 ## Mobile App Integration
 - The [TCNApp](https://github.com/GeorgeWebDevCy/TCNApp) React Native client consumes the GN Password Login API endpoints for authentication and the `gn/v1/memberships/*` endpoints defined in this plugin for membership upgrades.
@@ -60,6 +62,7 @@ Custom WordPress plugin that layers an MLM programme on top of WooCommerce membe
 - Membership plan catalogue: `GET /wp-json/gn/v1/memberships/plans` returns the plan list consumed by the app’s paywall UI. Adjust `tcn_mlm_levels` in WordPress to change pricing, copy, or benefits.
 - Upgrade flows: `POST /wp-json/gn/v1/memberships/confirm` can be triggered by authenticated mobile clients to promote a user after an out-of-band payment confirmation. Stripe intent creation (`/stripe-intent`) returns a 501 response until real payment handling is configured—hook into `tcn_mlm_membership_create_payment_session` to provide your own payload.
 - Customise the REST responses by filtering `tcn_mlm_membership_create_payment_session` and `tcn_mlm_membership_confirm_response` to integrate with billing providers or extend the return payload.
+- The admin settings screen now previews membership tiers with TCN branding so site managers can keep pricing aligned with the mobile experience.
 - Ensure the GN Password Login API plugin is active so `/wp-json/gn/v1/login` and related endpoints remain available to the mobile client.
 
 ## Shortcodes

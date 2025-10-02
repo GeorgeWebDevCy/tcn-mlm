@@ -1,0 +1,305 @@
+.tcn-mlm-dashboard {
+  font-family: 'Poppins', 'Segoe UI', Roboto, sans-serif;
+  color: #1c1e26;
+  background: linear-gradient(180deg, #ffffff 0%, #f5f7ff 100%);
+  border-radius: 18px;
+  box-shadow: 0 22px 45px -25px rgba(51, 61, 83, 0.35);
+  overflow: hidden;
+  margin: 2rem auto;
+  max-width: 960px;
+}
+
+.tcn-mlm-dashboard__hero {
+  position: relative;
+  padding: 3rem 2.5rem 2rem;
+  background: radial-gradient(circle at 10% 20%, rgba(66, 105, 255, 0.92), rgba(35, 51, 120, 0.95));
+  color: #fff;
+}
+
+.tcn-mlm-dashboard__hero-background {
+  position: absolute;
+  inset: 0;
+  background: url('data:image/svg+xml,%3Csvg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-opacity="0.12" stroke="%23ffffff" stroke-width="1"%3E%3Cpath d="M0 80h400M0 160h400M0 240h400M0 320h400M80 0v400M160 0v400M240 0v400M320 0v400"/%3E%3Ccircle cx="200" cy="200" r="140" /%3E%3C/g%3E%3C/svg%3E') center/cover no-repeat;
+  opacity: 0.18;
+}
+
+.tcn-mlm-dashboard__hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 420px;
+}
+
+.tcn-mlm-dashboard__hero-content h2 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin: 0.5rem 0;
+  letter-spacing: 0.02em;
+}
+
+.tcn-mlm-dashboard__hero-content p {
+  margin: 0;
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+.tcn-mlm-dashboard__tier-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.9rem;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  font-weight: 600;
+}
+
+.tcn-mlm-dashboard__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.2rem;
+  padding: 2rem 2.5rem;
+}
+
+.tcn-mlm-dashboard__stat {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 18px 35px -25px rgba(34, 48, 85, 0.32);
+  text-align: center;
+}
+
+.tcn-mlm-dashboard__stat-label {
+  display: block;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #5f6c88;
+  margin-bottom: 0.6rem;
+}
+
+.tcn-mlm-dashboard__stat-value {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #24335c;
+}
+
+.tcn-mlm-dashboard__benefits {
+  padding: 0 2.5rem 2.5rem;
+}
+
+.tcn-mlm-dashboard__benefit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.4rem;
+}
+
+.tcn-mlm-dashboard__benefit {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.25rem 1.4rem;
+  box-shadow: 0 16px 30px -20px rgba(40, 54, 90, 0.28);
+  position: relative;
+  overflow: hidden;
+}
+
+.tcn-mlm-dashboard__benefit-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: linear-gradient(120deg, #ffd166, #fcb045);
+  color: #2a2a2a;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+
+.tcn-mlm-dashboard__benefit h4 {
+  margin: 0 0 0.6rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #27345a;
+}
+
+.tcn-mlm-dashboard__benefit p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #4f5c7d;
+  line-height: 1.45;
+}
+
+@media (max-width: 768px) {
+  .tcn-mlm-dashboard {
+    margin: 1.5rem;
+  }
+
+  .tcn-mlm-dashboard__hero {
+    padding: 2.5rem 1.75rem 1.75rem;
+  }
+
+  .tcn-mlm-dashboard__stats {
+    padding: 1.75rem;
+  }
+
+  .tcn-mlm-dashboard__benefits {
+    padding: 0 1.75rem 1.75rem;
+  }
+}
+
+/* Admin branding */
+.tcn-mlm-admin {
+  max-width: 1040px;
+}
+
+.tcn-mlm-hero {
+  position: relative;
+  padding: 3rem;
+  margin-bottom: 2rem;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #283f99, #5e81ff);
+  color: #fff;
+  overflow: hidden;
+}
+
+.tcn-mlm-hero__brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tcn-mlm-hero__logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.22);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
+}
+
+.tcn-mlm-hero h1 {
+  margin: 0;
+  font-size: 2.1rem;
+  font-weight: 700;
+}
+
+.tcn-mlm-hero__subtitle {
+  margin-top: 0.75rem;
+  max-width: 460px;
+  font-size: 1rem;
+  opacity: 0.85;
+}
+
+.tcn-mlm-settings {
+  display: grid;
+  gap: 1.75rem;
+}
+
+.tcn-mlm-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 2rem;
+  box-shadow: 0 18px 40px -28px rgba(40, 50, 90, 0.3);
+}
+
+.tcn-mlm-card h2 {
+  margin-top: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #1c2648;
+}
+
+.tcn-mlm-tier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.2rem;
+}
+
+.tcn-mlm-tier {
+  border: 1px solid rgba(88, 110, 168, 0.15);
+  border-radius: 16px;
+  padding: 1.5rem;
+  background: linear-gradient(145deg, #fdfdff 0%, #f6f8ff 40%, #ffffff 100%);
+  position: relative;
+}
+
+.tcn-mlm-tier__header {
+  margin-bottom: 1rem;
+}
+
+.tcn-mlm-tier__badge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(55, 79, 177, 0.12);
+  color: #2d3e82;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  font-weight: 600;
+}
+
+.tcn-mlm-tier h3 {
+  margin: 0.75rem 0 0.4rem;
+  font-size: 1.2rem;
+  color: #1f2f5c;
+}
+
+.tcn-mlm-tier__price {
+  margin: 0;
+  font-weight: 600;
+  color: #283f99;
+}
+
+.tcn-mlm-tier__price span {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.65;
+}
+
+.tcn-mlm-tier__description {
+  margin: 0 0 1rem;
+  color: #5a658c;
+  font-size: 0.9rem;
+}
+
+.tcn-mlm-tier__features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.tcn-mlm-tier__features li {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #4d5a81;
+  font-size: 0.85rem;
+}
+
+.tcn-mlm-tier__features li::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #425fff, #6f8cff);
+  display: inline-block;
+}
+
+@media (max-width: 768px) {
+  .tcn-mlm-hero {
+    padding: 2rem;
+  }
+
+  .tcn-mlm-tier-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}

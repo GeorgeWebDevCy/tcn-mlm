@@ -3,6 +3,7 @@
 namespace TCN\MLM;
 
 use TCN\MLM\Contracts\Bootable;
+use TCN\MLM\Assets;
 
 class Plugin {
     private static ?Plugin $instance = null;
@@ -66,6 +67,7 @@ class Plugin {
 
     private function register_default_services(): void {
         $this->register_service( Support\Environment::class );
+        Assets::register_frontend();
         $this->register_service( Membership\Manager::class );
         $this->register_service( Network\Service::class );
         $this->register_service( Commission\Manager::class );

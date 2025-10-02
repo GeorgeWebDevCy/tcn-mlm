@@ -29,19 +29,17 @@ class ShortcodeRegistry implements Bootable {
         $label   = isset( $config['label'] ) ? (string) $config['label'] : ucfirst( $level );
         $benefits = array_filter( isset( $config['benefits'] ) && is_array( $config['benefits'] ) ? $config['benefits'] : [] );
 
-        ob_start();
-        ?>
-        <div class="tcn-mlm-dashboard">
-            <h2><?php esc_html_e( 'Member Dashboard', 'tcn-mlm' ); ?></h2>
-            <p><?php esc_html_e( 'This area will display earnings, commission history, and membership status.', 'tcn-mlm' ); ?></p>
-            <ul>
-                <li><?php esc_html_e( 'Membership Level:', 'tcn-mlm' ); ?> <?php echo esc_html( $label ); ?></li>
-                <li><?php esc_html_e( 'Direct Recruits:', 'tcn-mlm' ); ?> <?php echo esc_html( (string) get_user_meta( $user_id, '_tcn_direct_recruits', true ) ); ?></li>
-                <li><?php esc_html_e( 'Network Size:', 'tcn-mlm' ); ?> <?php echo esc_html( (string) get_user_meta( $user_id, '_tcn_network_size', true ) ); ?></li>
-            </ul>
-            <?php if ( ! empty( $benefits ) ) : ?>
+        $direct_recruits = absint( get_user_meta( $user_id, '_tcn_direct_recruits', true ) );
+        $network_size    = absint( get_user_meta( $user_id, '_tcn_network_size', true ) );
+
+        $benefits_markup = '';
+
+        if ( ! empty( $benefits ) ) {
+            ob_start();
+            ?>
+            <div class="tcn-mlm-dashboard__benefits">
                 <h3><?php esc_html_e( 'Membership Benefits', 'tcn-mlm' ); ?></h3>
-                <ul>
+                <div class="tcn-mlm-dashboard__benefit-grid">
                     <?php foreach ( $benefits as $benefit ) :
                         if ( ! is_array( $benefit ) ) {
                             continue;
@@ -56,22 +54,60 @@ class ShortcodeRegistry implements Bootable {
                         $benefit_description = isset( $benefit['description'] ) ? (string) $benefit['description'] : '';
                         $benefit_discount    = isset( $benefit['discountPercentage'] ) ? (float) $benefit['discountPercentage'] : null;
                         ?>
-                        <li>
-                            <strong><?php echo esc_html( $benefit_title ); ?></strong>
-                            <?php if ( $benefit_discount ) : ?>
-                                <span><?php printf( esc_html__( ' – %s%% savings', 'tcn-mlm' ), esc_html( (string) $benefit_discount ) ); ?></span>
-                            <?php endif; ?>
+                        <div class="tcn-mlm-dashboard__benefit">
+                            <div class="tcn-mlm-dashboard__benefit-badge">
+                                <?php if ( $benefit_discount ) : ?>
+                                    <span><?php echo esc_html( sprintf( '%s%%', $benefit_discount ) ); ?></span>
+                                <?php else : ?>
+                                    <span><?php esc_html_e( 'Perk', 'tcn-mlm' ); ?></span>
+                                <?php endif; ?>
+                            </div>
+                            <h4><?php echo esc_html( $benefit_title ); ?></h4>
                             <?php if ( $benefit_description ) : ?>
                                 <p><?php echo esc_html( $benefit_description ); ?></p>
                             <?php endif; ?>
-                        </li>
+                        </div>
                     <?php endforeach; ?>
-                </ul>
-            <?php endif; ?>
+                </div>
+            </div>
+            <?php
+            $benefits_markup = (string) ob_get_clean();
+        }
+
+        ob_start();
+        ?>
+        <div class="tcn-mlm-dashboard">
+            <div class="tcn-mlm-dashboard__hero">
+                <div class="tcn-mlm-dashboard__hero-background"></div>
+                <div class="tcn-mlm-dashboard__hero-content">
+                    <span class="tcn-mlm-dashboard__tier-badge"><?php echo esc_html( strtoupper( $level ) ); ?></span>
+                    <h2><?php echo esc_html( $label ); ?></h2>
+                    <p><?php esc_html_e( 'Track your network performance and unlock the next tier of rewards.', 'tcn-mlm' ); ?></p>
+                </div>
+            </div>
+            <div class="tcn-mlm-dashboard__stats">
+                <div class="tcn-mlm-dashboard__stat">
+                    <span class="tcn-mlm-dashboard__stat-label"><?php esc_html_e( 'Direct Recruits', 'tcn-mlm' ); ?></span>
+                    <span class="tcn-mlm-dashboard__stat-value"><?php echo esc_html( (string) $direct_recruits ); ?></span>
+                </div>
+                <div class="tcn-mlm-dashboard__stat">
+                    <span class="tcn-mlm-dashboard__stat-label"><?php esc_html_e( 'Network Size', 'tcn-mlm' ); ?></span>
+                    <span class="tcn-mlm-dashboard__stat-value"><?php echo esc_html( (string) $network_size ); ?></span>
+                </div>
+                <div class="tcn-mlm-dashboard__stat">
+                    <span class="tcn-mlm-dashboard__stat-label"><?php esc_html_e( 'Membership Level', 'tcn-mlm' ); ?></span>
+                    <span class="tcn-mlm-dashboard__stat-value"><?php echo esc_html( $label ); ?></span>
+                </div>
+            </div>
+            <?php echo $benefits_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
         </div>
         <?php
 
-        return (string) ob_get_clean();
+        $output = (string) ob_get_clean();
+
+        wp_enqueue_style( 'tcn-mlm-frontend', TCN_MLM_PLUGIN_URL . 'assets/css/frontend.css', [], TCN_MLM_VERSION );
+
+        return $output;
     }
 
     public function renderGenealogy(): string {

@@ -3,7 +3,7 @@
  * Plugin Name:       TCN MLM
  * Plugin URI:        https://github.com/GeorgeWebDevCy/tcn-mlm
  * Description:       Network marketing automation for WooCommerce memberships.
- * Version:           0.1.6
+ * Version:           0.1.7
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            TCN
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'TCN_MLM_VERSION' ) ) {
-	define( 'TCN_MLM_VERSION', '0.1.6' );
+	define( 'TCN_MLM_VERSION', '0.1.7' );
 }
 
 if ( ! defined( 'TCN_MLM_PLUGIN_FILE' ) ) {
@@ -188,6 +188,7 @@ function tcn_mlm_activate(): void {
 
 	tcn_mlm_seed_default_options();
 	tcn_mlm_register_account_endpoints();
+	tcn_mlm_ensure_membership_category();
 	tcn_mlm_seed_membership_products();
 	flush_rewrite_rules();
 }
@@ -260,11 +261,49 @@ function tcn_mlm_seed_membership_products(): void {
 		return;
 	}
 
+	tcn_mlm_ensure_membership_category();
+
 	$levels = tcn_mlm_get_levels();
 
 	foreach ( $levels as $slug => $config ) {
 		tcn_mlm_ensure_membership_product( sanitize_key( $slug ), $config );
 	}
+}
+
+function tcn_mlm_ensure_membership_category(): void {
+	if ( ! function_exists( 'wp_insert_term' ) || ! function_exists( 'get_term_by' ) ) {
+		return;
+	}
+
+	$stored_id = (int) get_option( 'tcn_mlm_membership_category_id', 0 );
+
+	if ( $stored_id > 0 ) {
+		$stored_term = get_term( $stored_id, 'product_cat' );
+		if ( $stored_term && ! is_wp_error( $stored_term ) ) {
+			return;
+		}
+	}
+
+	$term = get_term_by( 'slug', 'memberships', 'product_cat' );
+
+	if ( ! $term || is_wp_error( $term ) ) {
+		$term = wp_insert_term(
+			__( 'Memberships', 'tcn-mlm' ),
+			'product_cat',
+			[
+				'slug'        => 'memberships',
+				'description' => __( 'Membership products that unlock network tiers.', 'tcn-mlm' ),
+			]
+		);
+	}
+
+	if ( is_wp_error( $term ) ) {
+		return;
+	}
+
+	$term_id = (int) ( is_array( $term ) ? $term['term_id'] : $term->term_id );
+
+	update_option( 'tcn_mlm_membership_category_id', $term_id, false );
 }
 
 function tcn_mlm_ensure_membership_product( string $level, array $config ): void {
@@ -293,6 +332,12 @@ function tcn_mlm_ensure_membership_product( string $level, array $config ): void
 	}
 
 	$product->update_meta_data( '_tcn_membership_level', $level );
+
+	$category_id = (int) get_option( 'tcn_mlm_membership_category_id', 0 );
+
+	if ( $category_id > 0 ) {
+		wp_set_object_terms( $product->get_id(), [ $category_id ], 'product_cat', true );
+	}
 	$product->save();
 }
 

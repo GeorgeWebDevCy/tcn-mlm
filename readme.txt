@@ -4,7 +4,7 @@ Tags: woocommerce, mlm, memberships, commissions, genealogy
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.1.6
+Stable tag: 0.1.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,6 +27,8 @@ This initial bootstrap wires the plugin into WordPress, preps the update manager
 - `POST /wp-json/gn/v1/memberships/stripe-intent` currently returns a 501 response until Stripe payment handling is configured on your site (hook into `tcn_mlm_membership_create_payment_session` to supply your own payload).
 - The WordPress profile endpoint (`/wp-json/wp/v2/users/me`) now includes `membership_tier`, `membership_expiry`, and `membership_benefits` metadata so the app can hydrate dashboards without extra calls.
 - Developers can customise the upgrade payloads with the `tcn_mlm_membership_confirm_response` filter.
+- Seeded products automatically join the `Memberships` WooCommerce category for consistent storefront organisation.
+- The front-end dashboard and admin screens follow the TCN app branding for a cohesive experience.
 
 == Frequently Asked Questions ==
 = How do automated updates work? =
@@ -48,6 +50,11 @@ Edit the product in the WordPress admin and locate the **TCN MLM Membership Leve
 Future commits will introduce the service container, WooCommerce membership sync, commission calculations, REST API endpoints, and dashboards described in `architecture.md`.
 
 == Changelog ==
+= 0.1.7 =
+* Refresh the member dashboard and admin settings page with TCN branding and responsive layouts.
+* Automatically assign seeded membership products to the `Memberships` WooCommerce product category (creating it if needed).
+* Enqueue shared styling for both front-end shortcodes and the admin experience.
+
 = 0.1.6 =
 * Bump plugin version to ship the mobile-app integration endpoints and REST user metadata additions.
 
@@ -76,8 +83,11 @@ Future commits will introduce the service container, WooCommerce membership sync
 * Provide this WordPress readme to surface plugin metadata and setup notes inside the admin.
 
 == Upgrade Notice ==
+= 0.1.7 =
+Brand-aligned UI updates and automatic category assignment for seeded products. Update if you want the polished member dashboard or WooCommerce categorisation.
+
 = 0.1.6 =
-Version bump to deliver the new mobile endpoints and REST metadata. Update now if you rely on the TCN app.
+Version bump to deliver the new mobile endpoints, REST metadata, and refreshed branding. Update now if you rely on the TCN app.
 
 = 0.1.5 =
 Activation now seeds default membership products and sets their TCN levels automatically. Review the generated products and adjust pricing before launch.
