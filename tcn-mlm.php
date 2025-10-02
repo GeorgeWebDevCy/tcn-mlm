@@ -40,6 +40,10 @@ if ( file_exists( TCN_MLM_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
 	require_once TCN_MLM_PLUGIN_DIR . 'vendor/autoload.php';
 }
 
+require_once TCN_MLM_PLUGIN_DIR . 'includes/Autoloader.php';
+
+( new \TCN\MLM\Autoloader( TCN_MLM_PLUGIN_DIR . 'includes' ) )->register();
+
 register_activation_hook( __FILE__, 'tcn_mlm_activate' );
 register_deactivation_hook( __FILE__, 'tcn_mlm_deactivate' );
 
@@ -58,6 +62,8 @@ function tcn_mlm_activate(): void {
 	if ( version_compare( $wp_version, '6.0', '<' ) ) {
 		tcn_mlm_deactivate_with_message( __( 'TCN MLM requires WordPress 6.0 or newer.', 'tcn-mlm' ) );
 	}
+
+	tcn_mlm_seed_default_options();
 }
 
 /**
@@ -88,7 +94,35 @@ function tcn_mlm_bootstrap(): void {
 
 	tcn_mlm_bootstrap_update_checker();
 
-	// @todo Wire up the service container once the implementation is available.
+	\TCN\MLM\Plugin::instance()->boot();
+}
+
+function tcn_mlm_seed_default_options(): void {
+	if ( false === get_option( 'tcn_mlm_levels', false ) ) {
+		update_option(
+			'tcn_mlm_levels',
+			[
+				'default' => 'blue',
+				'levels'  => [
+					'blue'     => [ 'label' => __( 'Blue', 'tcn-mlm' ), 'fee' => 0 ],
+					'gold'     => [ 'label' => __( 'Gold', 'tcn-mlm' ), 'fee' => 199 ],
+					'platinum' => [ 'label' => __( 'Platinum', 'tcn-mlm' ), 'fee' => 399 ],
+					'black'    => [ 'label' => __( 'Black', 'tcn-mlm' ), 'fee' => 699 ],
+				],
+			],
+			false
+		);
+	}
+
+	if ( false === get_option( 'tcn_mlm_general', false ) ) {
+		update_option(
+			'tcn_mlm_general',
+			[
+				'default_sponsor_id' => '',
+			],
+			false
+		);
+	}
 }
 
 /**
