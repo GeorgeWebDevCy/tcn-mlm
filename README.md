@@ -18,6 +18,9 @@ Custom WordPress plugin that layers an MLM programme on top of WooCommerce membe
 - WooCommerce 7.0+
 - PHP 7.4+
 
+## Companion Plugin
+- [GN Password Login API](https://github.com/GeorgeWebDevCy/gn-password-login-api) ships the password-based authentication endpoints used by the same membership sites that run TCN MLM. Install it alongside this plugin to give mobile apps and third-party portals a lightweight REST interface for authenticating into WordPress while the MLM layer manages memberships and commissions.
+
 ## Installation
 1. Copy the plugin directory into `wp-content/plugins/tcn-mlm`.
 2. Activate “TCN Consumer Network MLM” from the WordPress admin Plugins screen.
@@ -48,7 +51,7 @@ Custom WordPress plugin that layers an MLM programme on top of WooCommerce membe
 - Plugin options: `tcn_mlm_general` (global settings) and `tcn_mlm_levels` (per-level configuration).
 
 ## GitHub Updates
-- The plugin bundles [plugin-update-checker](https://github.com/YahnisElsts/plugin-update-checker) and is configured to pull releases from [GeorgeWebDevCy/tcn-mlm](https://github.com/GeorgeWebDevCy/tcn-mlm).
+- The plugin bundles [plugin-update-checker](https://github.com/YahnisElsts/plugin-update-checker) and is configured to pull releases from [GeorgeWebDevCy/tcn-mlm](https://github.com/GeorgeWebDevCy/tcn-mlm), mirroring the update bootstrap used in [GN Password Login API](https://github.com/GeorgeWebDevCy/gn-password-login-api).
 - For private repositories, define `TCN_MLM_GITHUB_TOKEN` (or filter `tcn_mlm_github_token`) to supply a GitHub token before updates run.
 
 ## Development
@@ -56,8 +59,6 @@ Custom WordPress plugin that layers an MLM programme on top of WooCommerce membe
 - Hooks provided:
   - `tcn_mlm_membership_changed( $user_id, $level, $context )` fires on level changes.
 - When modifying queries or table schema, bump `Activator::DB_VERSION` and rerun activation steps.
-
-
 
 
 

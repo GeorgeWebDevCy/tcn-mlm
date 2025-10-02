@@ -96,31 +96,26 @@ function tcn_mlm_bootstrap(): void {
  */
 function tcn_mlm_bootstrap_update_checker(): void {
 	static $initialized = false;
+	static $update_checker = null;
 
-	if ( $initialized ) {
+	if ( $initialized || $update_checker ) {
 		return;
 	}
 
-	$library_paths = array(
-		TCN_MLM_PLUGIN_DIR . 'vendor/plugin-update-checker/plugin-update-checker.php',
-		TCN_MLM_PLUGIN_DIR . 'plugin-update-checker/plugin-update-checker.php',
-	);
+	$library_path = TCN_MLM_PLUGIN_DIR . 'plugin-update-checker/plugin-update-checker.php';
 
-	$library_path = null;
-
-	foreach ( $library_paths as $path ) {
-		if ( file_exists( $path ) ) {
-			$library_path = $path;
-			break;
-		}
+	if ( file_exists( TCN_MLM_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
+		require_once TCN_MLM_PLUGIN_DIR . 'vendor/autoload.php';
 	}
 
-	if ( ! $library_path ) {
+	if ( file_exists( $library_path ) ) {
+		require_once $library_path;
+	}
+
+	if ( ! class_exists( '\\YahnisElsts\\PluginUpdateChecker\\v5\\PucFactory' ) ) {
 		add_action( 'admin_notices', 'tcn_mlm_update_checker_missing_notice' );
 		return;
 	}
-
-	require_once $library_path;
 
 	$default_repository = defined( 'TCN_MLM_UPDATE_REPOSITORY' )
 		? TCN_MLM_UPDATE_REPOSITORY
@@ -136,7 +131,11 @@ function tcn_mlm_bootstrap_update_checker(): void {
 		return;
 	}
 
-	$update_checker = Puc_v4_Factory::buildUpdateChecker( $repository, __FILE__, 'tcn-mlm' );
+	$update_checker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+		$repository,
+		TCN_MLM_PLUGIN_FILE,
+		'tcn-mlm'
+	);
 
 	if ( $branch ) {
 		$update_checker->setBranch( $branch );
@@ -156,7 +155,7 @@ function tcn_mlm_update_checker_missing_notice(): void {
 	echo '<div class="notice notice-warning is-dismissible"><p>';
 	echo wp_kses_post(
 		__(
-			'TCN MLM could not locate the plugin-update-checker library. Install it by running composer install or by placing the library in plugin-update-checker/.',
+			'TCN MLM could not load the plugin-update-checker library. Ensure the plugin ships with the plugin-update-checker/ directory or provide an autoloader that registers YahnisElsts\\PluginUpdateChecker classes.',
 			'tcn-mlm'
 		)
 	);

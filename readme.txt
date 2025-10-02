@@ -16,13 +16,13 @@ This initial bootstrap wires the plugin into WordPress, preps the update manager
 == Installation ==
 1. Upload the `tcn-mlm` directory to `/wp-content/plugins/` or install the plugin via the WordPress admin Plugins screen.
 2. Activate **TCN MLM** through the Plugins screen.
-3. Install the update checker dependency by running `composer require yahnis-elsts/plugin-update-checker` inside the plugin folder *or* by placing the library in `plugin-update-checker/`.
+3. The Plugin Update Checker library ships with the plugin (see the `plugin-update-checker/` directory). If you prefer to manage dependencies with Composer, replace that folder with your own autoload setup.
 4. If you use a GitHub branch other than `main`, add a filter to `tcn_mlm_update_repository_branch` (or define the `TCN_MLM_UPDATE_REPOSITORY_BRANCH` constant) so the updater tracks the correct branch.
 5. Visit the TCN MLM settings page (coming soon) to complete onboarding.
 
 == Frequently Asked Questions ==
 = How do automated updates work? =
-The bootstrap file loads the Plugin Update Checker library and points it to this repository on GitHub. When you tag a new release, WordPress will see the update and offer it to every site running this plugin. Make sure the library is installed and that the repository URL (`https://github.com/GeorgeWebDevCy/tcn-mlm`) is correct for your hosting setup.
+The bootstrap file loads the bundled Plugin Update Checker library and points it to this repository on GitHub. When you tag a new release, WordPress will see the update and offer it to every site running this plugin. Keep the `plugin-update-checker/` directory in place (or provide your own autoloader) and confirm that the repository URL (`https://github.com/GeorgeWebDevCy/tcn-mlm`) matches your hosting setup.
 
 = Can I change the repository URL without editing core files? =
 Yes. Hook into `tcn_mlm_update_repository_url` and return the URL for your public repository, or define the `TCN_MLM_UPDATE_REPOSITORY` constant in `wp-config.php` before the plugin loads.

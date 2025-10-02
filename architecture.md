@@ -3,6 +3,8 @@
 ## Overview
 The plugin adds a network marketing layer on top of WooCommerce memberships. It tracks sponsor relationships, handles automatic upgrades, records commissions, and exposes dashboards for members to monitor their earnings and downlines.
 
+It is often deployed alongside the [GN Password Login API](https://github.com/GeorgeWebDevCy/gn-password-login-api) plugin, which exposes lightweight authentication endpoints for companion mobile and portal applications. That plugin keeps logins simple for external clients while TCN MLM continues to own membership levels, commission tracking, and genealogy features.
+
 ## Key Components
 - **Plugin Bootstrap (`tcn-mlm.php`)** - Registers activation hooks, loads dependencies, and bootstraps main service container.
 - **Service Container (`TCN\\MLM\\Plugin`)** - Coordinates setup of subsystems (membership, network, commissions, dashboards, REST routes).
@@ -48,3 +50,4 @@ The plugin adds a network marketing layer on top of WooCommerce memberships. It 
 ## Extensibility
 - Hooks (`do_action` / `apply_filters`) are provided around commission calculations, upgrade thresholds, and REST responses for future tier additions.
 - Additional membership tiers can be added via settings without schema changes.
+- Authentication flows can stay decoupled by pairing the system with GN Password Login API, allowing external apps to authenticate and then consume TCN MLM REST endpoints without mixing concerns inside the MLM codebase.
