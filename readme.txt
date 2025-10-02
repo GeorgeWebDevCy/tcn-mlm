@@ -4,7 +4,7 @@ Tags: woocommerce, mlm, memberships, commissions, genealogy
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.1.0
+Stable tag: 0.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,10 +31,16 @@ Yes. Hook into `tcn_mlm_update_repository_url` and return the URL for your publi
 Future commits will introduce the service container, WooCommerce membership sync, commission calculations, REST API endpoints, and dashboards described in `architecture.md`.
 
 == Changelog ==
+= 0.1.1 =
+* Bump plugin version to verify automatic updater flow.
+
 = 0.1.0 =
 * Add the base plugin bootstrap with activation guards, localization loading, and GitHub-powered updates via plugin-update-checker.
 * Provide this WordPress readme to surface plugin metadata and setup notes inside the admin.
 
 == Upgrade Notice ==
+= 0.1.1 =
+Version bump to trigger and validate the GitHub-based auto-updater.
+
 = 0.1.0 =
 Initial public skeleton release that prepares the plugin for upcoming features and enables GitHub-based automatic updates.
