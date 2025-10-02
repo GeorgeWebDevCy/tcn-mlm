@@ -12,6 +12,7 @@ Custom WordPress plugin that layers an MLM programme on top of WooCommerce membe
 - Genealogy tree shortcode rendered from REST data with responsive styling.
 - Admin settings page to adjust currency, passive depth, level names, fees, and commissions.
 - WooCommerce product meta box to map products to membership levels.
+- Automatic seeding of baseline membership products when the plugin activates (Blue, Gold, Platinum, Black).
 - WooCommerce “My Account” menu entries for MLM Dashboard and Genealogy that reuse the bundled shortcodes.
 
 ## Requirements
@@ -28,17 +29,29 @@ Custom WordPress plugin that layers an MLM programme on top of WooCommerce membe
 3. Visit **TCN MLM** in the admin menu to review defaults and adjust membership level payouts or passive depth.
 
 ## Configuration Workflow
-1. **Create membership products** in WooCommerce and assign their level via the “TCN Membership Level” select box.
-2. **Capture sponsors** by sharing referral URLs (e.g. `https://example.com/shop?ref=123`) or by adding the optional checkout field `tcn_mlm_sponsor`.
-3. **Publish shortcodes** where needed:
+1. **Review the seeded membership products** (Blue, Gold, Platinum, Black) that are created automatically on activation. Adjust pricing, descriptions, and catalog visibility as needed.
+2. **Create additional membership products** (if required) and assign their level via the “TCN MLM Membership Level” field found under Product ▸ General.
+3. **Capture sponsors** by sharing referral URLs (e.g. `https://example.com/shop?ref=123`) or by adding the optional checkout field `tcn_mlm_sponsor`.
+4. **Publish shortcodes** where needed:
    - ` [tcn_member_dashboard] ` – Member earnings, counts, and recent commissions.
    - ` [tcn_genealogy] ` – Interactive downline tree for the logged-in user.
-4. Ensure sponsors recruit at least two paid members to trigger automatic upgrades (Gold -> Platinum). Network size rollups continue promoting to Black.
+5. Ensure sponsors recruit at least two paid members to trigger automatic upgrades (Gold -> Platinum). Network size rollups continue promoting to Black.
+6. Completed orders that include a mapped membership product now update the purchaser’s membership level automatically.
 
 ## WooCommerce Account Integration
 - The plugin now injects **MLM Dashboard** and **MLM Genealogy** links into WooCommerce’s “My Account” navigation.
 - Visiting those endpoints renders the same content as the ` [tcn_member_dashboard] ` and ` [tcn_genealogy] ` shortcodes, so you can support both standalone pages and native account tabs.
 - Endpoints are registered on activation and exposed under `/my-account/tcn-member-dashboard/` and `/my-account/tcn-genealogy/` once permalinks flush.
+
+## Order Automation
+- When a WooCommerce order reaches the **Completed** status, the plugin inspects its line items and looks for products tied to a TCN membership level.
+- The highest-ranking level found in the order becomes the member’s active level, and the change triggers the `tcn_mlm_membership_changed` action for custom integrations.
+- Membership join dates are populated automatically the first time an order promotes a user.
+
+## Seeded Membership Products
+- On activation the plugin creates hidden WooCommerce products for the baseline levels (Blue, Gold, Platinum, Black) if they’re missing.
+- Each seeded product is automatically tagged with the correct `TCN MLM Membership Level`, so orders placed against them immediately upgrade members.
+- Feel free to adjust pricing, content, or visibility of the generated products—or replace them with your own items using the same membership field.
 
 ## Shortcodes
 | Shortcode | Description |
@@ -65,6 +78,3 @@ Custom WordPress plugin that layers an MLM programme on top of WooCommerce membe
 - Hooks provided:
   - `tcn_mlm_membership_changed( $user_id, $level, $context )` fires on level changes.
 - When modifying queries or table schema, bump `Activator::DB_VERSION` and rerun activation steps.
-
-
-

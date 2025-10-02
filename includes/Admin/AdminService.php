@@ -15,6 +15,8 @@ class AdminService implements Bootable {
     public function boot(): void {
         add_action( 'admin_menu', [ $this, 'registerMenu' ] );
         add_action( 'admin_init', [ $this, 'registerSettings' ] );
+        add_action( 'woocommerce_product_options_general_product_data', [ $this, 'renderMembershipField' ] );
+        add_action( 'woocommerce_admin_process_product_object', [ $this, 'saveMembershipField' ] );
     }
 
     public function registerMenu(): void {
@@ -64,5 +66,66 @@ class AdminService implements Bootable {
             </form>
         </div>
         <?php
+    }
+
+    public function renderMembershipField(): void {
+        if ( ! function_exists( 'woocommerce_wp_select' ) ) {
+            return;
+        }
+
+        global $post;
+
+        $product_id = $post ? $post->ID : 0;
+        $value      = $product_id ? get_post_meta( $product_id, '_tcn_membership_level', true ) : '';
+
+        woocommerce_wp_select(
+            [
+                'id'          => 'tcn_mlm_membership_level',
+                'label'       => __( 'TCN MLM Membership Level', 'tcn-mlm' ),
+                'description' => __( 'Select the membership level this product grants when the related order completes.', 'tcn-mlm' ),
+                'options'     => $this->getMembershipLevelOptions(),
+                'value'       => $value,
+            ]
+        );
+    }
+
+    public function saveMembershipField( $product ): void {
+        if ( ! $product || ! isset( $_POST['tcn_mlm_membership_level'] ) ) {
+            return;
+        }
+
+        $level = sanitize_key( wp_unslash( $_POST['tcn_mlm_membership_level'] ) );
+
+        $options = $this->getMembershipLevelOptions();
+
+        if ( '' !== $level && ! array_key_exists( $level, $options ) ) {
+            $level = '';
+        }
+
+        if ( '' === $level ) {
+            $product->delete_meta_data( '_tcn_membership_level' );
+        } else {
+            $product->update_meta_data( '_tcn_membership_level', $level );
+        }
+    }
+
+    private function getMembershipLevelOptions(): array {
+        $levels_option = get_option( 'tcn_mlm_levels', [] );
+        $options       = [
+            '' => __( '— No membership —', 'tcn-mlm' ),
+        ];
+
+        if ( isset( $levels_option['levels'] ) && is_array( $levels_option['levels'] ) ) {
+            foreach ( $levels_option['levels'] as $key => $level ) {
+                $label = is_array( $level ) && isset( $level['label'] ) ? $level['label'] : ucfirst( $key );
+                $options[ sanitize_key( $key ) ] = wp_strip_all_tags( (string) $label );
+            }
+        } else {
+            foreach ( [ 'blue', 'gold', 'platinum', 'black' ] as $key ) {
+                $options[ sanitize_key( $key ) ] = ucfirst( $key );
+            }
+        }
+
+        return $options;
     }
 }

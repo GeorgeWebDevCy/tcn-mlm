@@ -15,6 +15,7 @@ class Manager implements Bootable {
     public function boot(): void {
         add_action( 'init', [ $this, 'registerUserMeta' ] );
         add_action( 'user_register', [ $this, 'assignDefaultMembership' ], 25 );
+        add_action( 'woocommerce_order_status_completed', [ $this, 'handleOrderCompleted' ], 20 );
     }
 
     public function registerUserMeta(): void {
@@ -91,5 +92,94 @@ class Manager implements Bootable {
         }
 
         return 'blue';
+    }
+
+    public function handleOrderCompleted( int $order_id ): void {
+        if ( ! function_exists( 'wc_get_order' ) ) {
+            return;
+        }
+
+        $order = wc_get_order( $order_id );
+
+        if ( ! $order ) {
+            return;
+        }
+
+        $user_id = $order->get_user_id();
+
+        if ( ! $user_id ) {
+            return;
+        }
+
+        $new_level = $this->determineLevelFromOrder( $order );
+
+        if ( ! $new_level ) {
+            return;
+        }
+
+        $current_level = get_user_meta( $user_id, '_tcn_membership_level', true );
+
+        if ( $current_level === $new_level ) {
+            return;
+        }
+
+        update_user_meta( $user_id, '_tcn_membership_level', $new_level );
+
+        if ( ! get_user_meta( $user_id, '_tcn_joined_at', true ) ) {
+            update_user_meta( $user_id, '_tcn_joined_at', current_time( 'mysql' ) );
+        }
+
+        do_action( 'tcn_mlm_membership_changed', $user_id, $new_level, 'order_completed' );
+    }
+
+    private function determineLevelFromOrder( $order ): ?string {
+        $candidate = null;
+        $candidate_priority = -1;
+        $priorities = $this->getLevelPriorities();
+
+        foreach ( $order->get_items() as $item ) {
+            $product = $item->get_product();
+
+            if ( ! $product ) {
+                continue;
+            }
+
+            $level = sanitize_key( (string) $product->get_meta( '_tcn_membership_level', true ) );
+
+            if ( '' === $level ) {
+                continue;
+            }
+
+            if ( ! isset( $priorities[ $level ] ) ) {
+                continue;
+            }
+
+            $priority = $priorities[ $level ];
+
+            if ( $priority > $candidate_priority ) {
+                $candidate          = $level;
+                $candidate_priority = $priority;
+            }
+        }
+
+        return $candidate;
+    }
+
+    private function getLevelPriorities(): array {
+        $levels_option = get_option( 'tcn_mlm_levels', [] );
+
+        if ( isset( $levels_option['levels'] ) && is_array( $levels_option['levels'] ) && $levels_option['levels'] ) {
+            $levels = array_keys( $levels_option['levels'] );
+        } else {
+            $levels = [ 'blue', 'gold', 'platinum', 'black' ];
+        }
+
+        $priorities = [];
+
+        foreach ( array_values( $levels ) as $index => $level ) {
+            $priorities[ sanitize_key( $level ) ] = $index;
+        }
+
+        return $priorities;
     }
 }

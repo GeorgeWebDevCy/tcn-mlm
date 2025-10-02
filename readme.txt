@@ -4,12 +4,12 @@ Tags: woocommerce, mlm, memberships, commissions, genealogy
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.1.3
+Stable tag: 0.1.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 == Description ==
-TCN MLM layers a multi-level marketing engine on top of WooCommerce memberships. It keeps sponsor relationships in sync, applies tier upgrade rules, and tracks commissions that downline members generate. Dashboards and REST endpoints expose the data needed for your team to manage their networks in real time, and the same views appear as native WooCommerce “My Account” tabs for members.
+TCN MLM layers a multi-level marketing engine on top of WooCommerce memberships. It keeps sponsor relationships in sync, applies tier upgrade rules, and tracks commissions that downline members generate. Dashboards and REST endpoints expose the data needed for your team to manage their networks in real time, and the same views appear as native WooCommerce “My Account” tabs for members. The plugin seeds baseline membership products with the correct mapping so completed orders automatically promote customers.
 
 This initial bootstrap wires the plugin into WordPress, preps the update manager, and lays the groundwork for the service container described in the architecture guide. Update delivery is handled through the excellent [Plugin Update Checker](https://github.com/YahnisElsts/plugin-update-checker) library.
 
@@ -30,10 +30,24 @@ Yes. Hook into `tcn_mlm_update_repository_url` and return the URL for your publi
 = Do I need to create separate pages for the WooCommerce account tabs? =
 No. The plugin automatically wires **MLM Dashboard** and **MLM Genealogy** links into the WooCommerce “My Account” menu. Those endpoints render the same markup as the shortcodes, so you can keep both options or disable the standalone pages if you prefer.
 
+= Does the plugin create membership products for me? =
+Yes. On activation the plugin creates hidden WooCommerce products for the default levels (Blue, Gold, Platinum, Black) if they’re missing. You can customise pricing or replace them with your own items.
+
+= How do I map a WooCommerce product to a membership level? =
+Edit the product in the WordPress admin and locate the **TCN MLM Membership Level** dropdown inside the Product ▸ General panel. Pick the level the product should grant. When a customer completes an order that includes that product, their account is promoted to the selected level automatically.
+
 = What's next for the plugin? =
 Future commits will introduce the service container, WooCommerce membership sync, commission calculations, REST API endpoints, and dashboards described in `architecture.md`.
 
 == Changelog ==
+= 0.1.5 =
+* Seed baseline membership products on activation and ensure they carry the correct TCN MLM membership level meta.
+* Avoid duplicate product creation by reusing existing items matched by level or title.
+
+= 0.1.4 =
+* Add WooCommerce product data field for selecting the membership level a SKU grants.
+* Promote customers automatically when orders complete, emitting the `tcn_mlm_membership_changed` action.
+
 = 0.1.3 =
 * Add WooCommerce My Account endpoints for the MLM dashboard and genealogy, mirroring the bundled shortcodes.
 * Flush rewrite rules on activation so endpoints become immediately available.
@@ -50,6 +64,12 @@ Future commits will introduce the service container, WooCommerce membership sync
 * Provide this WordPress readme to surface plugin metadata and setup notes inside the admin.
 
 == Upgrade Notice ==
+= 0.1.5 =
+Activation now seeds default membership products and sets their TCN levels automatically. Review the generated products and adjust pricing before launch.
+
+= 0.1.4 =
+Map your membership products with the new WooCommerce field so completed orders seamlessly update customer levels.
+
 = 0.1.3 =
 Adds WooCommerce “My Account” menu entries that surface the MLM dashboard and genealogy views alongside the existing shortcodes.
 
