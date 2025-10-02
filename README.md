@@ -12,6 +12,7 @@ Custom WordPress plugin that layers an MLM programme on top of WooCommerce membe
 - Genealogy tree shortcode rendered from REST data with responsive styling.
 - Admin settings page to adjust currency, passive depth, level names, fees, and commissions.
 - WooCommerce product meta box to map products to membership levels.
+- WooCommerce “My Account” menu entries for MLM Dashboard and Genealogy that reuse the bundled shortcodes.
 
 ## Requirements
 - WordPress 6.0+
@@ -33,6 +34,11 @@ Custom WordPress plugin that layers an MLM programme on top of WooCommerce membe
    - ` [tcn_member_dashboard] ` – Member earnings, counts, and recent commissions.
    - ` [tcn_genealogy] ` – Interactive downline tree for the logged-in user.
 4. Ensure sponsors recruit at least two paid members to trigger automatic upgrades (Gold -> Platinum). Network size rollups continue promoting to Black.
+
+## WooCommerce Account Integration
+- The plugin now injects **MLM Dashboard** and **MLM Genealogy** links into WooCommerce’s “My Account” navigation.
+- Visiting those endpoints renders the same content as the ` [tcn_member_dashboard] ` and ` [tcn_genealogy] ` shortcodes, so you can support both standalone pages and native account tabs.
+- Endpoints are registered on activation and exposed under `/my-account/tcn-member-dashboard/` and `/my-account/tcn-genealogy/` once permalinks flush.
 
 ## Shortcodes
 | Shortcode | Description |
@@ -59,7 +65,6 @@ Custom WordPress plugin that layers an MLM programme on top of WooCommerce membe
 - Hooks provided:
   - `tcn_mlm_membership_changed( $user_id, $level, $context )` fires on level changes.
 - When modifying queries or table schema, bump `Activator::DB_VERSION` and rerun activation steps.
-
 
 
 

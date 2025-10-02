@@ -13,6 +13,7 @@ It is often deployed alongside the [GN Password Login API](https://github.com/Ge
 - **Commission Manager** - Calculates commissions during WooCommerce order completion, records them in a custom table, and provides summary totals for dashboards.
 - **Admin UI** - Provides settings for membership tiers, WooCommerce product mapping, and manual adjustments. Adds product meta boxes for associating membership level and annual fee.
 - **Member Dashboard Shortcodes** - Front-end shortcodes for members to view earnings, commissions, and downline activity. Genealogy output uses localized REST endpoints to render an interactive tree.
+- **WooCommerce Account Endpoints** - Adds `tcn-member-dashboard` and `tcn-genealogy` endpoints under My Account that render the same templates as the shortcodes, keeping page and account navigation aligned.
 - **REST API** - Namespaced endpoints under `/wp-json/tcn-mlm/v1/` exposing genealogy data, member metrics, and commission summaries for authenticated users.
 - **Update Manager** - Wraps plugin-update-checker to fetch releases from GitHub and installs updates automatically.
 
@@ -42,6 +43,7 @@ It is often deployed alongside the [GN Password Login API](https://github.com/Ge
 3. Network Service updates direct recruit counts and determines whether the sponsor should form their own network or upgrade to Platinum/Black.
 4. Commission Manager records a direct commission for the sponsor. It then walks up the upline hierarchy to award passive commissions per rules (currently 1 level for Gold/Platinum to align with provided scenarios).
 5. Dashboards and REST endpoints read aggregated data from the commission table and user meta for reporting.
+6. Account endpoints reuse shortcode renderers so members see consistent dashboards when browsing the WooCommerce My Account area.
 
 ## Genealogy Visualization
 - REST endpoint returns a nested tree structure limited to the authenticated user's downline.
