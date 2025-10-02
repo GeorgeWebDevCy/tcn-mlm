@@ -3,7 +3,7 @@
  * Plugin Name:       TCN MLM
  * Plugin URI:        https://github.com/GeorgeWebDevCy/tcn-mlm
  * Description:       Network marketing automation for WooCommerce memberships.
- * Version:           0.1.7
+ * Version:           0.1.8
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            TCN
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'TCN_MLM_VERSION' ) ) {
-	define( 'TCN_MLM_VERSION', '0.1.7' );
+	define( 'TCN_MLM_VERSION', '0.1.8' );
 }
 
 if ( ! defined( 'TCN_MLM_PLUGIN_FILE' ) ) {
@@ -314,6 +314,8 @@ function tcn_mlm_ensure_membership_product( string $level, array $config ): void
 		$product = tcn_mlm_find_product_by_title( $label );
 	}
 
+	$price = isset( $config['fee'] ) ? (float) $config['fee'] : 0.0;
+
 	if ( ! $product ) {
 		$product = class_exists( '\WC_Product_Simple' )
 			? new WC_Product_Simple()
@@ -322,14 +324,13 @@ function tcn_mlm_ensure_membership_product( string $level, array $config ): void
 		$product->set_slug( sanitize_title( 'tcn-mlm-' . $level ) );
 		$product->set_status( 'publish' );
 		$product->set_catalog_visibility( 'hidden' );
-		$price = isset( $config['fee'] ) ? (float) $config['fee'] : 0.0;
-		$product->set_price( $price );
-		$product->set_regular_price( $price );
 		$product->set_manage_stock( false );
 		$product->set_sold_individually( true );
 		$product->set_virtual( true );
-		$product->save();
 	}
+
+	$product->set_price( $price );
+	$product->set_regular_price( $price );
 
 	$product->update_meta_data( '_tcn_membership_level', $level );
 
@@ -337,7 +338,12 @@ function tcn_mlm_ensure_membership_product( string $level, array $config ): void
 
 	if ( $category_id > 0 ) {
 		wp_set_object_terms( $product->get_id(), [ $category_id ], 'product_cat', true );
+		$uncategorized = get_term_by( 'slug', 'uncategorized', 'product_cat' );
+		if ( $uncategorized && ! is_wp_error( $uncategorized ) ) {
+			wp_remove_object_terms( $product->get_id(), (int) $uncategorized->term_id, 'product_cat' );
+		}
 	}
+
 	$product->save();
 }
 
