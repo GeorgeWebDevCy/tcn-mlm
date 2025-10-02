@@ -4,7 +4,7 @@ Tags: woocommerce, mlm, memberships, commissions, genealogy
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.2.0
+Stable tag: 0.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -50,6 +50,9 @@ Edit the product in the WordPress admin and locate the **TCN MLM Membership Leve
 Future commits will introduce the service container, WooCommerce membership sync, commission calculations, REST API endpoints, and dashboards described in `architecture.md`.
 
 == Changelog ==
+= 0.2.1 =
+* Return membership plan prices in minor currency units (e.g. satang) so the mobile app renders correct amounts.
+
 = 0.2.0 =
 * Force membership pricing to 0 / 500 / 1,200 / 2,000 THB regardless of historical settings and re-run synchronisation every page load plus hourly via WP-Cron.
 * Keep auto-generated products in the `Memberships` category only, stripping `Uncategorized` when necessary.
@@ -95,6 +98,9 @@ Future commits will introduce the service container, WooCommerce membership sync
 * Provide this WordPress readme to surface plugin metadata and setup notes inside the admin.
 
 == Upgrade Notice ==
+= 0.2.1 =
+Corrects the mobile membership screen pricing by exporting minor units.
+
 = 0.2.0 =
 Stronger pricing + category enforcement and scheduled resyncs for seeded membership products.
 

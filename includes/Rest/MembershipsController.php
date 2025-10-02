@@ -60,10 +60,12 @@ class MembershipsController implements Bootable {
         $plans  = [];
 
         foreach ( $levels as $slug => $config ) {
+            $price_major = isset( $config['fee'] ) ? (float) $config['fee'] : 0.0;
+            $price_minor = (int) round( $price_major * 100 );
             $plans[] = [
                 'id'          => 'tcn-mlm-' . $slug,
                 'name'        => (string) ( $config['label'] ?? ucfirst( $slug ) ),
-                'price'       => isset( $config['fee'] ) ? (float) $config['fee'] : 0.0,
+                'price'       => $price_minor,
                 'currency'    => strtoupper( (string) ( $config['currency'] ?? 'THB' ) ),
                 'interval'    => (string) ( $config['interval'] ?? 'year' ),
                 'description' => (string) ( $config['description'] ?? '' ),

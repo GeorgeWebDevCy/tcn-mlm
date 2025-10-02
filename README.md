@@ -63,6 +63,7 @@ Custom WordPress plugin that layers an MLM programme on top of WooCommerce membe
 - The [TCNApp](https://github.com/GeorgeWebDevCy/TCNApp) React Native client consumes the GN Password Login API endpoints for authentication and the `gn/v1/memberships/*` endpoints defined in this plugin for membership upgrades.
 - Exposing membership details: `wp-json/wp/v2/users/me` now includes `membership_tier`, `membership_expiry`, and `membership_benefits` metadata so the app can hydrate the dashboard without extra calls.
 - Membership plan catalogue: `GET /wp-json/gn/v1/memberships/plans` returns the plan list consumed by the app’s paywall UI. Adjust `tcn_mlm_levels` in WordPress to change pricing, copy, or benefits.
+- Prices are exposed in minor units (e.g. THB satang) to match the mobile app’s expectations; the WooCommerce products remain priced in major units.
 - Upgrade flows: `POST /wp-json/gn/v1/memberships/confirm` can be triggered by authenticated mobile clients to promote a user after an out-of-band payment confirmation. Stripe intent creation (`/stripe-intent`) returns a 501 response until real payment handling is configured—hook into `tcn_mlm_membership_create_payment_session` to provide your own payload.
 - Customise the REST responses by filtering `tcn_mlm_membership_create_payment_session` and `tcn_mlm_membership_confirm_response` to integrate with billing providers or extend the return payload.
 - The admin settings screen now previews membership tiers with TCN branding so site managers can keep pricing aligned with the mobile experience.
