@@ -4,7 +4,7 @@ Tags: woocommerce, mlm, memberships, commissions, genealogy
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.1.5
+Stable tag: 0.1.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -48,6 +48,9 @@ Edit the product in the WordPress admin and locate the **TCN MLM Membership Leve
 Future commits will introduce the service container, WooCommerce membership sync, commission calculations, REST API endpoints, and dashboards described in `architecture.md`.
 
 == Changelog ==
+= 0.1.6 =
+* Bump plugin version to ship the mobile-app integration endpoints and REST user metadata additions.
+
 = 0.1.5 =
 * Seed baseline membership products on activation and ensure they carry the correct TCN MLM membership level meta.
 * Avoid duplicate product creation by reusing existing items matched by level or title.
@@ -73,6 +76,9 @@ Future commits will introduce the service container, WooCommerce membership sync
 * Provide this WordPress readme to surface plugin metadata and setup notes inside the admin.
 
 == Upgrade Notice ==
+= 0.1.6 =
+Version bump to deliver the new mobile endpoints and REST metadata. Update now if you rely on the TCN app.
+
 = 0.1.5 =
 Activation now seeds default membership products and sets their TCN levels automatically. Review the generated products and adjust pricing before launch.
 

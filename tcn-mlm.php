@@ -3,7 +3,7 @@
  * Plugin Name:       TCN MLM
  * Plugin URI:        https://github.com/GeorgeWebDevCy/tcn-mlm
  * Description:       Network marketing automation for WooCommerce memberships.
- * Version:           0.1.5
+ * Version:           0.1.6
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            TCN
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'TCN_MLM_VERSION' ) ) {
-	define( 'TCN_MLM_VERSION', '0.1.5' );
+	define( 'TCN_MLM_VERSION', '0.1.6' );
 }
 
 if ( ! defined( 'TCN_MLM_PLUGIN_FILE' ) ) {
