@@ -20,6 +20,14 @@ This initial bootstrap wires the plugin into WordPress, preps the update manager
 4. If you use a GitHub branch other than `main`, add a filter to `tcn_mlm_update_repository_branch` (or define the `TCN_MLM_UPDATE_REPOSITORY_BRANCH` constant) so the updater tracks the correct branch.
 5. Visit the TCN MLM settings page (coming soon) to complete onboarding.
 
+== Mobile App Integration ==
+- Pair this plugin with the [TCNApp](https://github.com/GeorgeWebDevCy/TCNApp) React Native client for mobile access. The app authenticates through GN Password Login API endpoints and reads membership data from this plugin.
+- `GET /wp-json/gn/v1/memberships/plans` exposes the catalogue consumed by the app’s upgrade screen. Adjust `tcn_mlm_levels` to change pricing, copy, or benefits.
+- `POST /wp-json/gn/v1/memberships/confirm` lets authenticated users promote themselves after an out-of-band payment is confirmed.
+- `POST /wp-json/gn/v1/memberships/stripe-intent` currently returns a 501 response until Stripe payment handling is configured on your site (hook into `tcn_mlm_membership_create_payment_session` to supply your own payload).
+- The WordPress profile endpoint (`/wp-json/wp/v2/users/me`) now includes `membership_tier`, `membership_expiry`, and `membership_benefits` metadata so the app can hydrate dashboards without extra calls.
+- Developers can customise the upgrade payloads with the `tcn_mlm_membership_confirm_response` filter.
+
 == Frequently Asked Questions ==
 = How do automated updates work? =
 The bootstrap file loads the bundled Plugin Update Checker library and points it to this repository on GitHub. When you tag a new release, WordPress will see the update and offer it to every site running this plugin. Keep the `plugin-update-checker/` directory in place (or provide your own autoloader) and confirm that the repository URL (`https://github.com/GeorgeWebDevCy/tcn-mlm`) matches your hosting setup.
@@ -43,6 +51,7 @@ Future commits will introduce the service container, WooCommerce membership sync
 = 0.1.5 =
 * Seed baseline membership products on activation and ensure they carry the correct TCN MLM membership level meta.
 * Avoid duplicate product creation by reusing existing items matched by level or title.
+* Expose `/wp-json/gn/v1/memberships/*` endpoints and enrich the user REST profile so the mobile app can read membership plans and statuses.
 
 = 0.1.4 =
 * Add WooCommerce product data field for selecting the membership level a SKU grants.

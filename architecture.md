@@ -14,7 +14,7 @@ It is often deployed alongside the [GN Password Login API](https://github.com/Ge
 - **Admin UI** - Provides settings for membership tiers, WooCommerce product mapping, and manual adjustments. Adds a product data field for associating each SKU with a membership level and annual fee, and seeds default membership products during activation.
 - **Member Dashboard Shortcodes** - Front-end shortcodes for members to view earnings, commissions, and downline activity. Genealogy output uses localized REST endpoints to render an interactive tree.
 - **WooCommerce Account Endpoints** - Adds `tcn-member-dashboard` and `tcn-genealogy` endpoints under My Account that render the same templates as the shortcodes, keeping page and account navigation aligned.
-- **REST API** - Namespaced endpoints under `/wp-json/tcn-mlm/v1/` exposing genealogy data, member metrics, and commission summaries for authenticated users.
+- **REST API** - Namespaced endpoints under `/wp-json/tcn-mlm/v1/` exposing genealogy data, member metrics, and commission summaries for authenticated users, plus `/wp-json/gn/v1/memberships/*` routes that power the TCN mobile app membership catalogue and upgrade flows (the Stripe intent route returns a 501 response until a gateway integration hooks into `tcn_mlm_membership_create_payment_session`).
 - **Update Manager** - Wraps plugin-update-checker to fetch releases from GitHub and installs updates automatically.
 
 ## Data Model
@@ -39,11 +39,11 @@ It is often deployed alongside the [GN Password Login API](https://github.com/Ge
 
 ## WooCommerce Integration Flow
 1. On activation, the plugin seeds baseline membership products (Blue, Gold, Platinum, Black) with the correct level mapping if they don’t already exist.
-2. Member purchases a membership product and the order captures the level selected in the product data panel.
+2. Member purchases a membership product and the order captures the level selected in the product data panel or the mobile app triggers `gn/v1/memberships/confirm` after confirming payment.
 3. On `woocommerce_order_status_completed`, the Membership Manager promotes the purchasing user to the corresponding membership level (preferring the highest-ranking level in the order) and links the sponsor using referral metadata (shortcode or query param).
 4. Network Service updates direct recruit counts and determines whether the sponsor should form their own network or upgrade to Platinum/Black.
 5. Commission Manager records a direct commission for the sponsor. It then walks up the upline hierarchy to award passive commissions per rules (currently 1 level for Gold/Platinum to align with provided scenarios).
-6. Dashboards and REST endpoints read aggregated data from the commission table and user meta for reporting.
+6. Dashboards and REST endpoints (including the mobile-facing `/wp-json/wp/v2/users/me` augmentation) read aggregated data from the commission table and user meta for reporting.
 7. Account endpoints reuse shortcode renderers so members see consistent dashboards when browsing the WooCommerce My Account area.
 
 ## Genealogy Visualization

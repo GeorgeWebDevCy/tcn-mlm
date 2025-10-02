@@ -24,6 +24,10 @@ class ShortcodeRegistry implements Bootable {
         }
 
         $user_id = get_current_user_id();
+        $level   = get_user_meta( $user_id, '_tcn_membership_level', true ) ?: 'blue';
+        $config  = tcn_mlm_get_level_config( $level );
+        $label   = isset( $config['label'] ) ? (string) $config['label'] : ucfirst( $level );
+        $benefits = array_filter( isset( $config['benefits'] ) && is_array( $config['benefits'] ) ? $config['benefits'] : [] );
 
         ob_start();
         ?>
@@ -31,10 +35,39 @@ class ShortcodeRegistry implements Bootable {
             <h2><?php esc_html_e( 'Member Dashboard', 'tcn-mlm' ); ?></h2>
             <p><?php esc_html_e( 'This area will display earnings, commission history, and membership status.', 'tcn-mlm' ); ?></p>
             <ul>
-                <li><?php esc_html_e( 'Membership Level:', 'tcn-mlm' ); ?> <?php echo esc_html( get_user_meta( $user_id, '_tcn_membership_level', true ) ?: __( 'Blue', 'tcn-mlm' ) ); ?></li>
+                <li><?php esc_html_e( 'Membership Level:', 'tcn-mlm' ); ?> <?php echo esc_html( $label ); ?></li>
                 <li><?php esc_html_e( 'Direct Recruits:', 'tcn-mlm' ); ?> <?php echo esc_html( (string) get_user_meta( $user_id, '_tcn_direct_recruits', true ) ); ?></li>
                 <li><?php esc_html_e( 'Network Size:', 'tcn-mlm' ); ?> <?php echo esc_html( (string) get_user_meta( $user_id, '_tcn_network_size', true ) ); ?></li>
             </ul>
+            <?php if ( ! empty( $benefits ) ) : ?>
+                <h3><?php esc_html_e( 'Membership Benefits', 'tcn-mlm' ); ?></h3>
+                <ul>
+                    <?php foreach ( $benefits as $benefit ) :
+                        if ( ! is_array( $benefit ) ) {
+                            continue;
+                        }
+
+                        $benefit_title = isset( $benefit['title'] ) ? (string) $benefit['title'] : '';
+
+                        if ( '' === trim( $benefit_title ) ) {
+                            continue;
+                        }
+
+                        $benefit_description = isset( $benefit['description'] ) ? (string) $benefit['description'] : '';
+                        $benefit_discount    = isset( $benefit['discountPercentage'] ) ? (float) $benefit['discountPercentage'] : null;
+                        ?>
+                        <li>
+                            <strong><?php echo esc_html( $benefit_title ); ?></strong>
+                            <?php if ( $benefit_discount ) : ?>
+                                <span><?php printf( esc_html__( ' – %s%% savings', 'tcn-mlm' ), esc_html( (string) $benefit_discount ) ); ?></span>
+                            <?php endif; ?>
+                            <?php if ( $benefit_description ) : ?>
+                                <p><?php echo esc_html( $benefit_description ); ?></p>
+                            <?php endif; ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
         </div>
         <?php
 

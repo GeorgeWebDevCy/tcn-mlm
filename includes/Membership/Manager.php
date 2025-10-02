@@ -16,6 +16,7 @@ class Manager implements Bootable {
         add_action( 'init', [ $this, 'registerUserMeta' ] );
         add_action( 'user_register', [ $this, 'assignDefaultMembership' ], 25 );
         add_action( 'woocommerce_order_status_completed', [ $this, 'handleOrderCompleted' ], 20 );
+        add_filter( 'rest_prepare_user', [ $this, 'extendRestUser' ], 15, 3 );
     }
 
     public function registerUserMeta(): void {
@@ -69,6 +70,15 @@ class Manager implements Bootable {
         register_meta( 'user', '_tcn_joined_at', [
             'type'              => 'string',
             'description'       => 'Date when member joined network',
+            'single'            => true,
+            'show_in_rest'      => false,
+            'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback'     => '__return_false',
+        ] );
+
+        register_meta( 'user', '_tcn_membership_expires_at', [
+            'type'              => 'string',
+            'description'       => 'Membership expiration date in ISO8601 format',
             'single'            => true,
             'show_in_rest'      => false,
             'sanitize_callback' => 'sanitize_text_field',
@@ -132,6 +142,29 @@ class Manager implements Bootable {
         do_action( 'tcn_mlm_membership_changed', $user_id, $new_level, 'order_completed' );
     }
 
+    public function extendRestUser( $response, $user, $request ) {
+        if ( ! ( $response instanceof \WP_REST_Response ) ) {
+            return $response;
+        }
+
+        $data        = (array) $response->get_data();
+        $membership  = $this->buildMembershipPayload( (int) $user->ID );
+        $meta        = isset( $data['meta'] ) && is_array( $data['meta'] ) ? $data['meta'] : [];
+
+        if ( $membership ) {
+            $data['membership'] = $membership;
+            $meta['membership_tier']     = $membership['tier'];
+            $meta['membership_expiry']   = $membership['expiresAt'];
+            $meta['membership_benefits'] = $membership['benefits'];
+        }
+
+        $data['meta'] = $meta;
+
+        $response->set_data( $data );
+
+        return $response;
+    }
+
     private function determineLevelFromOrder( $order ): ?string {
         $candidate = null;
         $candidate_priority = -1;
@@ -181,5 +214,49 @@ class Manager implements Bootable {
         }
 
         return $priorities;
+    }
+
+    private function buildMembershipPayload( int $user_id ): ?array {
+        $level     = get_user_meta( $user_id, '_tcn_membership_level', true );
+        $config    = tcn_mlm_get_level_config( $level );
+        $expires   = get_user_meta( $user_id, '_tcn_membership_expires_at', true );
+
+        if ( empty( $level ) ) {
+            $level  = 'blue';
+            $config = tcn_mlm_get_level_config( $level );
+        }
+
+        $benefits = [];
+
+        if ( isset( $config['benefits'] ) && is_array( $config['benefits'] ) ) {
+            foreach ( $config['benefits'] as $benefit ) {
+                if ( ! is_array( $benefit ) ) {
+                    continue;
+                }
+
+                $title = isset( $benefit['title'] ) ? (string) $benefit['title'] : '';
+
+                if ( '' === trim( $title ) ) {
+                    continue;
+                }
+
+                $benefits[] = [
+                    'id'                 => isset( $benefit['id'] ) ? (string) $benefit['id'] : $level . '-' . count( $benefits ),
+                    'title'              => $title,
+                    'description'        => isset( $benefit['description'] ) ? (string) $benefit['description'] : '',
+                    'discountPercentage' => isset( $benefit['discountPercentage'] ) ? (float) $benefit['discountPercentage'] : null,
+                ];
+            }
+        }
+
+        if ( empty( $level ) && empty( $benefits ) && empty( $expires ) ) {
+            return null;
+        }
+
+        return [
+            'tier'       => $level,
+            'expiresAt'  => ! empty( $expires ) ? (string) $expires : null,
+            'benefits'   => $benefits,
+        ];
     }
 }

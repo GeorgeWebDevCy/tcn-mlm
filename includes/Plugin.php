@@ -71,6 +71,7 @@ class Plugin {
         $this->register_service( Commission\Manager::class );
         $this->register_service( Shortcodes\ShortcodeRegistry::class );
         $this->register_service( Rest\Api::class );
+        $this->register_service( Rest\MembershipsController::class );
         $this->register_service( Admin\AdminService::class );
         $this->register_service( WooCommerce\AccountEndpoints::class );
     }

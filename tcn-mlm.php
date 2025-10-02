@@ -49,6 +49,129 @@ register_deactivation_hook( __FILE__, 'tcn_mlm_deactivate' );
 
 add_action( 'plugins_loaded', 'tcn_mlm_bootstrap', 5 );
 
+function tcn_mlm_default_levels(): array {
+	return [
+		'blue'     => [
+			'label'       => __( 'Blue Membership', 'tcn-mlm' ),
+			'fee'         => 0,
+			'currency'    => 'THB',
+			'interval'    => 'year',
+			'description' => __( 'Free access tier for new members exploring the network.', 'tcn-mlm' ),
+			'features'    => [
+				__( 'Discover participating vendors and news inside the app.', 'tcn-mlm' ),
+				__( 'Receive general network announcements.', 'tcn-mlm' ),
+			],
+			'benefits'    => [
+				[
+					'id'                  => 'sapphire-discounts',
+					'title'               => __( 'Sapphire vendor directory', 'tcn-mlm' ),
+					'description'         => __( 'Browse local Sapphire vendors and discover introductory offers.', 'tcn-mlm' ),
+					'discountPercentage'  => 0,
+				],
+			],
+		],
+		'gold'     => [
+			'label'       => __( 'Gold Membership', 'tcn-mlm' ),
+			'fee'         => 500,
+			'currency'    => 'THB',
+			'interval'    => 'year',
+			'description' => __( 'Entry-level membership with annual perks and standard discounts.', 'tcn-mlm' ),
+			'features'    => [
+				__( 'Unlock network-wide member discounts.', 'tcn-mlm' ),
+				__( 'Eligible for Membership Network Program progression.', 'tcn-mlm' ),
+			],
+			'benefits'    => [
+				[
+					'id'                 => 'gold-sapphire-discount',
+					'title'              => __( 'Sapphire vendor savings', 'tcn-mlm' ),
+					'description'        => __( 'Enjoy 2.5% savings with Sapphire partners.', 'tcn-mlm' ),
+					'discountPercentage' => 2.5,
+				],
+				[
+					'id'                 => 'gold-diamond-discount',
+					'title'              => __( 'Diamond vendor savings', 'tcn-mlm' ),
+					'description'        => __( 'Receive 5% off with Diamond partners.', 'tcn-mlm' ),
+					'discountPercentage' => 5,
+				],
+			],
+			'highlight'   => true,
+		],
+		'platinum' => [
+			'label'       => __( 'Platinum Membership', 'tcn-mlm' ),
+			'fee'         => 1200,
+			'currency'    => 'THB',
+			'interval'    => 'year',
+			'description' => __( 'Enhanced benefits, higher-tier discounts, and priority invitations.', 'tcn-mlm' ),
+			'features'    => [
+				__( 'Higher discount rates with premium vendors.', 'tcn-mlm' ),
+				__( 'Priority access to member-only campaigns and events.', 'tcn-mlm' ),
+			],
+			'benefits'    => [
+				[
+					'id'                 => 'platinum-sapphire-discount',
+					'title'              => __( 'Sapphire loyalty savings', 'tcn-mlm' ),
+					'description'        => __( 'Receive 5% off with Sapphire partners.', 'tcn-mlm' ),
+					'discountPercentage' => 5,
+				],
+				[
+					'id'                 => 'platinum-diamond-discount',
+					'title'              => __( 'Premium Diamond savings', 'tcn-mlm' ),
+					'description'        => __( 'Enjoy 10% off with Diamond partners.', 'tcn-mlm' ),
+					'discountPercentage' => 10,
+				],
+			],
+		],
+		'black'    => [
+			'label'       => __( 'Black Membership', 'tcn-mlm' ),
+			'fee'         => 2000,
+			'currency'    => 'THB',
+			'interval'    => 'year',
+			'description' => __( 'Top-tier access, maximum discounts, and concierge-level support.', 'tcn-mlm' ),
+			'features'    => [
+				__( 'Maximum partner discounts and VIP perks.', 'tcn-mlm' ),
+				__( 'Exclusive campaigns with concierge support.', 'tcn-mlm' ),
+			],
+			'benefits'    => [
+				[
+					'id'                 => 'black-sapphire-discount',
+					'title'              => __( 'Elite Sapphire savings', 'tcn-mlm' ),
+					'description'        => __( 'Claim 10% off with Sapphire partners.', 'tcn-mlm' ),
+					'discountPercentage' => 10,
+				],
+				[
+					'id'                 => 'black-diamond-discount',
+					'title'              => __( 'Diamond elite savings', 'tcn-mlm' ),
+					'description'        => __( 'Access 20% savings with Diamond partners.', 'tcn-mlm' ),
+					'discountPercentage' => 20,
+				],
+			],
+		],
+	];
+}
+
+function tcn_mlm_get_levels(): array {
+	$option  = get_option( 'tcn_mlm_levels', [] );
+	$levels  = isset( $option['levels'] ) && is_array( $option['levels'] ) ? $option['levels'] : [];
+	$defaults = tcn_mlm_default_levels();
+
+	foreach ( $defaults as $key => $default ) {
+		if ( ! isset( $levels[ $key ] ) || ! is_array( $levels[ $key ] ) ) {
+			$levels[ $key ] = $default;
+			continue;
+		}
+
+		$levels[ $key ] = array_merge( $default, $levels[ $key ] );
+	}
+
+	return $levels;
+}
+
+function tcn_mlm_get_level_config( string $level ): array {
+	$levels = tcn_mlm_get_levels();
+
+	return $levels[ $level ] ?? [];
+}
+
 /**
  * Handle plugin activation requirements.
  */
@@ -107,27 +230,25 @@ function tcn_mlm_register_account_endpoints(): void {
 }
 
 function tcn_mlm_seed_default_options(): void {
-	if ( false === get_option( 'tcn_mlm_levels', false ) ) {
-		update_option(
-			'tcn_mlm_levels',
-			[
-				'default' => 'blue',
-				'levels'  => [
-					'blue'     => [ 'label' => __( 'Blue', 'tcn-mlm' ), 'fee' => 0 ],
-					'gold'     => [ 'label' => __( 'Gold', 'tcn-mlm' ), 'fee' => 199 ],
-					'platinum' => [ 'label' => __( 'Platinum', 'tcn-mlm' ), 'fee' => 399 ],
-					'black'    => [ 'label' => __( 'Black', 'tcn-mlm' ), 'fee' => 699 ],
-				],
-			],
-			false
-		);
+	$stored_levels = get_option( 'tcn_mlm_levels', [] );
+	$merged_levels = [
+		'default' => 'blue',
+		'levels'  => tcn_mlm_get_levels(),
+	];
+
+	if ( is_array( $stored_levels ) ) {
+		$merged_levels = array_merge( $stored_levels, $merged_levels );
+		$merged_levels['levels'] = array_merge( tcn_mlm_get_levels(), $stored_levels['levels'] ?? [] );
 	}
+
+	update_option( 'tcn_mlm_levels', $merged_levels, false );
 
 	if ( false === get_option( 'tcn_mlm_general', false ) ) {
 		update_option(
 			'tcn_mlm_general',
 			[
 				'default_sponsor_id' => '',
+				'currency'           => 'THB',
 			],
 			false
 		);
@@ -135,48 +256,36 @@ function tcn_mlm_seed_default_options(): void {
 }
 
 function tcn_mlm_seed_membership_products(): void {
-	if ( ! class_exists( '\\WC_Product' ) ) {
+	if ( ! class_exists( '\\WC_Product' ) || ! function_exists( 'wc_get_product' ) ) {
 		return;
 	}
 
-	$levels_option = get_option( 'tcn_mlm_levels', [] );
-	$levels        = [];
+	$levels = tcn_mlm_get_levels();
 
-	if ( isset( $levels_option['levels'] ) && is_array( $levels_option['levels'] ) ) {
-		foreach ( $levels_option['levels'] as $key => $level ) {
-			$levels[ sanitize_key( $key ) ] = is_array( $level ) && isset( $level['label'] )
-				? $level['label']
-				: ucfirst( $key );
-		}
-	} else {
-		$levels = [
-			'blue'     => __( 'Blue Membership', 'tcn-mlm' ),
-			'gold'     => __( 'Gold Membership', 'tcn-mlm' ),
-			'platinum' => __( 'Platinum Membership', 'tcn-mlm' ),
-			'black'    => __( 'Black Membership', 'tcn-mlm' ),
-		];
-	}
-
-	foreach ( $levels as $slug => $label ) {
-		tcn_mlm_ensure_membership_product( sanitize_key( $slug ), $label );
+	foreach ( $levels as $slug => $config ) {
+		tcn_mlm_ensure_membership_product( sanitize_key( $slug ), $config );
 	}
 }
 
-function tcn_mlm_ensure_membership_product( string $level, string $label ): void {
+function tcn_mlm_ensure_membership_product( string $level, array $config ): void {
 	$product = tcn_mlm_find_product_by_level( $level );
 
 	if ( ! $product ) {
+		$label = isset( $config['label'] ) ? (string) $config['label'] : ucfirst( $level );
 		$product = tcn_mlm_find_product_by_title( $label );
 	}
 
 	if ( ! $product ) {
-		$product = new WC_Product();
-		$product->set_name( wp_strip_all_tags( $label ) );
+		$product = class_exists( '\WC_Product_Simple' )
+			? new WC_Product_Simple()
+			: new WC_Product();
+		$product->set_name( wp_strip_all_tags( isset( $config['label'] ) ? (string) $config['label'] : ucfirst( $level ) ) );
 		$product->set_slug( sanitize_title( 'tcn-mlm-' . $level ) );
 		$product->set_status( 'publish' );
 		$product->set_catalog_visibility( 'hidden' );
-		$product->set_price( 0 );
-		$product->set_regular_price( 0 );
+		$price = isset( $config['fee'] ) ? (float) $config['fee'] : 0.0;
+		$product->set_price( $price );
+		$product->set_regular_price( $price );
 		$product->set_manage_stock( false );
 		$product->set_sold_individually( true );
 		$product->set_virtual( true );
@@ -216,6 +325,10 @@ function tcn_mlm_find_product_by_level( string $level ) {
 }
 
 function tcn_mlm_find_product_by_title( string $label ) {
+	if ( ! function_exists( 'wc_get_product' ) ) {
+		return null;
+	}
+
 	$page = get_page_by_title( wp_strip_all_tags( $label ), OBJECT, 'product' );
 
 	if ( ! $page ) {
